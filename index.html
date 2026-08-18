@@ -54,7 +54,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .store-card:active{transform:scale(.97);}
 .store-card:hover{border-color:var(--accent);box-shadow:0 6px 24px rgba(255,107,0,.12);}
 .store-card.closed-card{opacity:.45;pointer-events:none;}
-.store-thumb{width:100%;height:88px;display:flex;align-items:center;justify-content:center;font-size:42px;position:relative;background:linear-gradient(135deg,#1c0800,#111);}
+.store-thumb{width:100%;height:110px;display:flex;align-items:center;justify-content:center;font-size:42px;position:relative;background:linear-gradient(135deg,#1c0800,#111);}
 .store-weekend-tag{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.75);border-radius:6px;font-size:9px;padding:3px 6px;color:#fff;font-weight:600;}
 .store-info{padding:10px 10px 12px;}
 .store-name{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;line-height:1.2;margin-bottom:3px;}
@@ -377,7 +377,7 @@ function renderStores(list){
   document.getElementById('storeCountLabel').textContent=`${list.length} estabelecimento${list.length!==1?'s':''}`;
   document.getElementById('storesGrid').innerHTML=list.map(s=>`
     <div class="store-card ${!s.open?'closed-card':''}" onclick="openStore('${s.id}')">
-      <div class="store-thumb">${s.img?`<img src="${s.img}" alt="${s.name}" style="width:100%;height:100%;object-fit:contain;padding:8px;box-sizing:border-box" onerror="this.replaceWith(document.createTextNode('${s.emoji}'))">`:s.emoji}${s.id==='IBIRA_POINT'?'<div class="store-weekend-tag">Fim de semana</div>':''}</div>
+      <div class="store-thumb">${s.img?`<img src="${s.img}" alt="${s.name}" style="width:100%;height:100%;object-fit:contain;padding:4px;box-sizing:border-box" onerror="this.replaceWith(document.createTextNode('${s.emoji}'))">`:s.emoji}${s.id==='IBIRA_POINT'?'<div class="store-weekend-tag">Fim de semana</div>':''}</div>
       <div class="store-info">
         <div class="store-name">${s.name}</div>
         <div class="store-type">${s.type}</div>
@@ -409,14 +409,14 @@ function openStore(id){
     <div class="menu-block">${s.sections.map(sec=>`
       <div class="menu-cat-header">${sec.title}</div>
       ${sec.items.map(item=>`
-        <div class="menu-item" onclick="openItemModal('${s.id}','${s.name}','${item.name.replace(/'/g,"\\'")}','${item.emoji}',${item.price},'${item.desc.replace(/'/g,"\\'")}')">
+        <div class="menu-item" onclick="openItemModal('${s.id}','${s.name}','${item.name.replace(/'/g,"\\'")}','${item.emoji}',${item.price},'${item.desc.replace(/'/g,"\\'")}','${item.img||''}')">
           <div class="mi-img">${item.img?`<img src="${item.img}" alt="${item.name.replace(/'/g,"\\'")}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit" onerror="this.replaceWith(document.createTextNode('${item.emoji}'))">`:item.emoji}</div>
           <div class="mi-body">
             <div class="mi-name">${item.name}</div>
             <div class="mi-desc">${item.desc}</div>
             <div class="mi-foot">
               <div class="mi-price">R$${item.price.toFixed(2).replace('.',',')}</div>
-              <button class="add-item-btn" onclick="event.stopPropagation();openItemModal('${s.id}','${s.name}','${item.name.replace(/'/g,"\\'")}','${item.emoji}',${item.price},'${item.desc.replace(/'/g,"\\'")}')">+</button>
+              <button class="add-item-btn" onclick="event.stopPropagation();openItemModal('${s.id}','${s.name}','${item.name.replace(/'/g,"\\'")}','${item.emoji}',${item.price},'${item.desc.replace(/'/g,"\\'")}','${item.img||''}')">+</button>
             </div>
           </div>
         </div>`).join('')}`).join('')}
@@ -426,9 +426,10 @@ function openStore(id){
 
 function goHome(){document.getElementById('homePage').style.display='block';const sp=document.getElementById('storePage');sp.className='';sp.innerHTML='';window.scrollTo(0,0);}
 
-function openItemModal(sid,sname,name,emoji,price,desc){
-  modalItem={storeId:sid,storeName:sname,name,emoji,price,desc};modalQty=1;
-  document.getElementById('imEmoji').textContent=emoji;
+function openItemModal(sid,sname,name,emoji,price,desc,img){
+  modalItem={storeId:sid,storeName:sname,name,emoji,price,desc,img};modalQty=1;
+  const imgEl=document.getElementById('imEmoji');
+  if(img){imgEl.innerHTML=`<img src="${img}" alt="${name.replace(/"/g,'')}" style="width:100%;height:100%;object-fit:cover" onerror="this.replaceWith(document.createTextNode('${emoji}'))">`;}else{imgEl.textContent=emoji;}
   document.getElementById('imName').textContent=name;
   document.getElementById('imDesc').textContent=desc;
   document.getElementById('imPrice').textContent=`R$ ${price.toFixed(2).replace('.',',')}`;
