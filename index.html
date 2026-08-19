@@ -42,8 +42,11 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 
 .cats{padding:10px 16px 14px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;}
 .cats::-webkit-scrollbar{display:none;}
-.cat{white-space:nowrap;background:var(--surface);border:1px solid var(--border);border-radius:50px;padding:8px 16px;color:var(--text2);font-size:13px;cursor:pointer;transition:all .2s;flex-shrink:0;}
-.cat.active,.cat:hover{background:var(--accent);border-color:var(--accent);color:#fff;}
+.cat{cursor:pointer;transition:all .2s;flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:6px;width:76px;}
+.cat-ic{width:64px;height:64px;border-radius:18px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:34px;transition:all .2s;}
+.cat-nm{font-size:12px;color:var(--text2);text-align:center;line-height:1.1;white-space:nowrap;}
+.cat.active .cat-ic,.cat:hover .cat-ic{background:var(--accent);border-color:var(--accent);}
+.cat.active .cat-nm{color:var(--accent);font-weight:700;}
 
 .section-head{padding:4px 16px 10px;display:flex;align-items:center;justify-content:space-between;}
 .section-label{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;}
@@ -54,11 +57,11 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .store-card:active{transform:scale(.97);}
 .store-card:hover{border-color:var(--accent);box-shadow:0 6px 24px rgba(255,107,0,.12);}
 .store-card.closed-card{opacity:.45;pointer-events:none;}
-.store-thumb{width:100%;height:150px;display:flex;align-items:center;justify-content:center;font-size:42px;position:relative;background:linear-gradient(135deg,#1c0800,#111);}
+.store-thumb{width:100%;height:150px;display:flex;align-items:center;justify-content:center;font-size:56px;position:relative;background:linear-gradient(135deg,#1c0800,#111);}
 .store-weekend-tag{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.75);border-radius:6px;font-size:9px;padding:3px 6px;color:#fff;font-weight:600;}
 .store-info{padding:10px 10px 12px;}
-.store-name{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;line-height:1.2;margin-bottom:3px;}
-.store-type{font-size:11px;color:var(--text3);margin-bottom:8px;}
+.store-name{font-family:'Syne',sans-serif;font-weight:800;font-size:17px;line-height:1.2;margin-bottom:4px;}
+.store-type{font-size:13px;color:var(--text3);margin-bottom:8px;}
 .store-foot{display:flex;align-items:center;justify-content:space-between;gap:4px;flex-wrap:wrap;}
 .status-tag{font-size:10px;font-weight:600;padding:3px 8px;border-radius:50px;}
 .status-tag.open{background:rgba(34,197,94,.15);color:var(--green);}
@@ -264,12 +267,12 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
     </div>
   </div>
   <div class="cats">
-    <div class="cat active" onclick="filterCat('todos',this)">Todos</div>
-    <div class="cat" onclick="filterCat('hamburguer',this)">🍔 Hamburgueria</div>
-    <div class="cat" onclick="filterCat('pizza',this)">🍕 Pizzaria</div>
-    <div class="cat" onclick="filterCat('espetinho',this)">🍢 Espetinhos</div>
-    <div class="cat" onclick="filterCat('baiana',this)">🫘 Comida Baiana</div>
-    <div class="cat" onclick="filterCat('restaurante',this)">🍱 Restaurante</div>
+    <div class="cat active" onclick="filterCat('todos',this)"><span class="cat-ic">🍽️</span><span class="cat-nm">Todos</span></div>
+    <div class="cat" onclick="filterCat('hamburguer',this)"><span class="cat-ic">🍔</span><span class="cat-nm">Hambúrguer</span></div>
+    <div class="cat" onclick="filterCat('pizza',this)"><span class="cat-ic">🍕</span><span class="cat-nm">Pizzaria</span></div>
+    <div class="cat" onclick="filterCat('espetinho',this)"><span class="cat-ic">🍢</span><span class="cat-nm">Espetinhos</span></div>
+    <div class="cat" onclick="filterCat('baiana',this)"><span class="cat-ic">🫘</span><span class="cat-nm">Comida Baiana</span></div>
+    <div class="cat" onclick="filterCat('restaurante',this)"><span class="cat-ic">🍱</span><span class="cat-nm">Restaurante</span></div>
   </div>
   <div class="section-head">
     <div class="section-label" id="storeCountLabel">8 estabelecimentos</div>
@@ -338,7 +341,18 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 
 <script>
 const WEBHOOK='https://delivery-backend-production-53a9.up.railway.app/webhook';
-function isOpen(){return true;} // MODO DEMO - sempre aberto
+const STATUS_URL='https://delivery-backend-production-53a9.up.railway.app/status';
+// Lista de estabelecimentos fechados (preenchida ao carregar, consultando o backend)
+let ESTAB_FECHADOS=[];
+async function carregarStatus(){
+  try{
+    const r=await fetch(STATUS_URL);
+    const d=await r.json();
+    ESTAB_FECHADOS=Array.isArray(d.fechados)?d.fechados:[];
+  }catch(e){ESTAB_FECHADOS=[];} // em erro, assume tudo aberto (não bloqueia venda)
+  if(typeof renderStores==='function')renderStores(stores);
+}
+function isOpen(){return !ESTAB_FECHADOS.includes('ACARAJE_ABARA');} // aberto, a menos que marcado fechado no painel
 function isOpenHouse(){return true;} // MODO DEMO - sempre aberto
 function isWeekend(){return true;} // MODO DEMO - sempre aberto
 
@@ -395,6 +409,7 @@ function filterCat(cat,btn){document.querySelectorAll('.cat').forEach(b=>b.class
 function openStore(id){
   const s=stores.find(x=>x.id===id);if(!s)return;
   if(s.id.startsWith('EMBREVE_')){showToast('🔜 '+s.name+' chega em breve na plataforma! Fique de olho 😊');return;}
+  if(!s.open){showToast('😴 '+s.name+' está fechado agora. Volte mais tarde!');return;}
   document.getElementById('homePage').style.display='none';
   const sp=document.getElementById('storePage');sp.className='show';
   sp.innerHTML=`
@@ -607,7 +622,7 @@ async function sendOrder(){
 function resetAll(){window._enviandoPedido=false;toggleCart();}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
 
-renderStores(stores);updateCartUI();
+renderStores(stores);updateCartUI();carregarStatus();
 
 // Atualizar hora e status em tempo real
 function atualizarHoraStatus() {
