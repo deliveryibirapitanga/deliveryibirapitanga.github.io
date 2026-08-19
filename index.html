@@ -54,7 +54,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .store-card:active{transform:scale(.97);}
 .store-card:hover{border-color:var(--accent);box-shadow:0 6px 24px rgba(255,107,0,.12);}
 .store-card.closed-card{opacity:.45;pointer-events:none;}
-.store-thumb{width:100%;height:110px;display:flex;align-items:center;justify-content:center;font-size:42px;position:relative;background:linear-gradient(135deg,#1c0800,#111);}
+.store-thumb{width:100%;height:150px;display:flex;align-items:center;justify-content:center;font-size:42px;position:relative;background:linear-gradient(135deg,#1c0800,#111);}
 .store-weekend-tag{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.75);border-radius:6px;font-size:9px;padding:3px 6px;color:#fff;font-weight:600;}
 .store-info{padding:10px 10px 12px;}
 .store-name{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;line-height:1.2;margin-bottom:3px;}
@@ -90,9 +90,9 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .item-modal-overlay.open{display:flex;align-items:flex-end;}
 .item-modal{background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-height:90vh;overflow-y:auto;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);}
 .item-modal-overlay.open .item-modal{transform:translateY(0);}
-.im-img{width:100%;height:150px;background:linear-gradient(135deg,#1c0900,#111);display:flex;align-items:center;justify-content:center;font-size:80px;position:relative;}
+.im-img{width:100%;height:180px;background:linear-gradient(135deg,#1c0900,#111);display:flex;align-items:center;justify-content:center;font-size:80px;position:relative;overflow:hidden;flex-shrink:0;}
 .im-close{position:absolute;top:12px;right:12px;background:rgba(0,0,0,.6);border:none;border-radius:50%;width:34px;height:34px;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
-.im-body{padding:20px 16px 32px;}
+.im-body{padding:16px 16px 28px;}
 .im-name{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;margin-bottom:6px;}
 .im-desc{font-size:14px;color:var(--text2);line-height:1.6;margin-bottom:16px;}
 .im-price{font-family:'Syne',sans-serif;font-weight:800;font-size:26px;color:var(--accent);margin-bottom:20px;}
@@ -112,7 +112,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .cart-pad{padding:0 16px;}
 .cart-title{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;margin-bottom:16px;}
 .cart-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
-.ci-emoji{font-size:28px;width:44px;height:44px;background:var(--surface2);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ci-emoji{font-size:28px;width:44px;height:44px;background:var(--surface2);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;}
 .ci-info{flex:1;min-width:0;}
 .ci-name{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .ci-store{font-size:11px;color:var(--text3);}
@@ -352,17 +352,17 @@ const stores=[
     {name:'Abará no prato',emoji:'🍽️',img:'abara-prato.jpg',price:15,desc:'Abará completo servido no prato: vatapá, salada, camarão e quiabada. Pimenta a pedido'},
     ]},
     {title:'🥤 Bebidas',items:[
-    {name:'Frutyba',emoji:'🧃',price:3,desc:'Suco Frutyba gelado'},
-    {name:'Refrigerante lata — Coca-Cola',emoji:'🥤',price:6,desc:'Lata 350ml'},
-    {name:'Refrigerante lata — Coca Zero',emoji:'🥤',price:6,desc:'Lata 350ml'},
-    {name:'Refrigerante lata — Guaraná',emoji:'🥤',price:6,desc:'Lata 350ml'},
-    {name:'Refrigerante lata — Fanta Laranja',emoji:'🥤',price:6,desc:'Lata 350ml'},
-    {name:'Refrigerante lata — Kuat',emoji:'🥤',price:6,desc:'Lata 350ml'},
-    {name:'Refrigerante 1L — Coca-Cola',emoji:'🍾',price:10,desc:'Garrafa 1 litro'},
-    {name:'Refrigerante 1L — Coca Zero',emoji:'🍾',price:10,desc:'Garrafa 1 litro'},
-    {name:'Refrigerante 1L — Guaraná',emoji:'🍾',price:10,desc:'Garrafa 1 litro'},
-    {name:'Refrigerante 1L — Fanta Laranja',emoji:'🍾',price:10,desc:'Garrafa 1 litro'},
-    {name:'Refrigerante 1L — Kuat',emoji:'🍾',price:10,desc:'Garrafa 1 litro'},
+    {name:'Frutyba',emoji:'🧃',img:'beb-frutyba.jpg',price:3,desc:'Suco Frutyba gelado'},
+    {name:'Refrigerante lata — Coca-Cola',emoji:'🥤',img:'beb-coca-lata.jpg',price:6,desc:'Lata 350ml'},
+    {name:'Refrigerante lata — Coca Zero',emoji:'🥤',img:'beb-coca-zero-lata.jpg',price:6,desc:'Lata 350ml'},
+    {name:'Refrigerante lata — Guaraná',emoji:'🥤',img:'beb-guarana-lata.jpg',price:6,desc:'Lata 350ml'},
+    {name:'Refrigerante lata — Fanta Laranja',emoji:'🥤',img:'beb-fanta-lata.jpg',price:6,desc:'Lata 350ml'},
+    {name:'Refrigerante lata — Kuat',emoji:'🥤',img:'beb-kuat-lata.jpg',price:6,desc:'Lata 350ml'},
+    {name:'Refrigerante 1L — Coca-Cola',emoji:'🍾',img:'beb-coca-1l.jpg',price:10,desc:'Garrafa 1 litro'},
+    {name:'Refrigerante 1L — Coca Zero',emoji:'🍾',img:'beb-coca-zero-1l.jpg',price:10,desc:'Garrafa 1 litro'},
+    {name:'Refrigerante 1L — Guaraná',emoji:'🍾',img:'beb-guarana-1l.jpg',price:10,desc:'Garrafa 1 litro'},
+    {name:'Refrigerante 1L — Fanta Laranja',emoji:'🍾',img:'beb-fanta-1l.jpg',price:10,desc:'Garrafa 1 litro'},
+    {name:'Refrigerante 1L — Kuat',emoji:'🍾',img:'beb-kuat-1l.jpg',price:10,desc:'Garrafa 1 litro'},
     ]},
   ]},
   {id:'EMBREVE_HAMBURGUER',name:'Hamburgueria',type:'Em breve na plataforma',emoji:'🍔',cat:'hamburguer',fee:'',time:'Em breve',open:false,sections:[]},
@@ -377,7 +377,7 @@ function renderStores(list){
   document.getElementById('storeCountLabel').textContent=`${list.length} estabelecimento${list.length!==1?'s':''}`;
   document.getElementById('storesGrid').innerHTML=list.map(s=>`
     <div class="store-card ${!s.open?'closed-card':''}" onclick="openStore('${s.id}')">
-      <div class="store-thumb">${s.img?`<img src="${s.img}" alt="${s.name}" style="width:100%;height:100%;object-fit:contain;padding:4px;box-sizing:border-box" onerror="this.replaceWith(document.createTextNode('${s.emoji}'))">`:s.emoji}${s.id==='IBIRA_POINT'?'<div class="store-weekend-tag">Fim de semana</div>':''}</div>
+      <div class="store-thumb">${s.img?`<img src="${s.img}" alt="${s.name}" style="width:100%;height:100%;object-fit:contain;padding:2px;box-sizing:border-box" onerror="this.replaceWith(document.createTextNode('${s.emoji}'))">`:s.emoji}${s.id==='IBIRA_POINT'?'<div class="store-weekend-tag">Fim de semana</div>':''}</div>
       <div class="store-info">
         <div class="store-name">${s.name}</div>
         <div class="store-type">${s.type}</div>
@@ -450,14 +450,14 @@ function changeModalQty(d){
 function confirmAddToCart(){
   if(!modalItem)return;
   const obs=document.getElementById('imObs').value.trim();
-  for(let i=0;i<modalQty;i++)addItem(modalItem.storeId,modalItem.storeName,modalItem.name,modalItem.emoji,modalItem.price,obs);
+  for(let i=0;i<modalQty;i++)addItem(modalItem.storeId,modalItem.storeName,modalItem.name,modalItem.emoji,modalItem.price,obs,modalItem.img);
   document.getElementById('itemModalOverlay').classList.remove('open');
   modalItem=null;
 }
 
-function addItem(sid,sname,name,emoji,price,obs){
+function addItem(sid,sname,name,emoji,price,obs,img){
   const ex=cart.find(i=>i.storeId===sid&&i.name===name&&(i.obs||'')===(obs||''));
-  if(ex)ex.qty++;else cart.push({storeId:sid,storeName:sname,name,emoji,price,qty:1,obs:obs||''});
+  if(ex)ex.qty++;else cart.push({storeId:sid,storeName:sname,name,emoji,price,qty:1,obs:obs||'',img:img||''});
   updateCartUI();showToast(`${name} adicionado! 🛒`);
 }
 
@@ -498,7 +498,7 @@ function updateCartUI(){
   }
   document.getElementById('cartItems').innerHTML=cart.map((item,idx)=>`
     <div class="cart-item">
-      <div class="ci-emoji">${item.emoji}</div>
+      <div class="ci-emoji">${item.img?`<img src="${item.img}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:10px" onerror="this.replaceWith(document.createTextNode('${item.emoji}'))">`:item.emoji}</div>
       <div class="ci-info"><div class="ci-name">${item.name}</div><div class="ci-store">${item.storeName}</div>${item.obs?`<div class="ci-store" style="color:#ff6b00;font-style:italic">📝 ${item.obs}</div>`:''}</div>
       <div class="ci-right">
         <div class="ci-price">R$${(item.price*item.qty).toFixed(2).replace('.',',')}</div>
