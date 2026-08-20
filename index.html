@@ -246,8 +246,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 </div>
 
 <!-- WHATSAPP FLOAT -->
-<a class="wa-float" href="https://wa.me/5573999528308?text=Olá! Quero fazer um pedido pelo Delivery Ibirapitanga 😊" target="_blank">💬</a>
-<div class="wa-tooltip">Pedir pelo WhatsApp</div>
+
+
 
 <div id="homePage">
   <div class="hero">
@@ -318,6 +318,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
     <div class="form-group"><label class="form-label">Nome completo</label><input class="form-input" id="fName" placeholder="Ex: Maria Silva"/></div>
     <div class="form-group"><label class="form-label">WhatsApp</label><input class="form-input" id="fPhone" placeholder="(73) 9 0000-0000" type="tel"/></div>
     <div class="form-group"><label class="form-label">Endereço de entrega</label><input class="form-input" id="fAddress" placeholder="Rua, número, bairro"/></div>
+    <div class="form-group"><label class="form-label">Ponto de referência</label><input class="form-input" id="fRef" placeholder="Ex: perto da praça, casa amarela, ao lado do mercado" maxlength="150"/></div>
     <div class="form-group"><label class="form-label">Pagamento</label>
       <select class="form-select" id="fPayment"><option value="">Selecione...</option><option value="PIX">PIX</option><option value="Dinheiro">Dinheiro</option><option value="Cartão (maquininha na entrega)">Cartão (maquininha na entrega)</option></select>
     </div>
@@ -418,9 +419,6 @@ function openStore(id){
       <div class="sp-name">${s.name}</div>
       <div class="sp-meta"><span>${s.type}</span><span>🕐 ${s.time}</span><span>🛵 ${s.fee}</span><span class="status-tag ${s.open?'open':'closed'}">${s.open?'Aberto':'Fechado'}</span></div>
     </div>
-    <a class="wa-order-btn" href="https://wa.me/5573999528308?text=Olá! Quero fazer um pedido no ${s.name} 😊" target="_blank">
-      💬 Pedir pelo WhatsApp
-    </a>
     <div class="menu-block">${s.sections.map(sec=>`
       <div class="menu-cat-header">${sec.title}</div>
       ${sec.items.map(item=>`
@@ -597,9 +595,12 @@ async function sendOrder(){
   const name=document.getElementById('fName').value.trim();
   const phone=document.getElementById('fPhone').value.trim();
   const address=document.getElementById('fAddress').value.trim();
+  const ref=document.getElementById('fRef').value.trim();
   const payment=document.getElementById('fPayment').value;
   const obsGeral=document.getElementById('fObs').value.trim();
   if(!name||!phone||!address||!payment){showToast('Preencha todos os campos!');reativarBotao();return;}
+  // Junta o ponto de referência ao endereço, se informado
+  const enderecoCompleto = ref ? `${address} (Ref: ${ref})` : address;
   // Verificar se tem itens de mais de 1 estabelecimento
   const lojas = [...new Set(cart.map(i => i.storeId))];
   if(lojas.length > 1){
@@ -611,7 +612,7 @@ async function sendOrder(){
   const total=cart.reduce((s,i)=>s+i.price*i.qty,0);
     const totalFinal=total+5;
   const obsInfo=obsGeral?` | observacoes=${obsGeral}`:'';
-  try{await fetch(WEBHOOK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone:phone.replace(/\D/g,''),text:{message:`PEDIDO WEB | nome=${name} | telefone=${phone} | endereco=${address} | pagamento=${payment} | itens=${items} | total=R$${totalFinal.toFixed(2)} | estabelecimento=${cart[0]?.storeId||''}${obsInfo}`}})});}catch(e){}
+  try{await fetch(WEBHOOK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone:phone.replace(/\D/g,''),text:{message:`PEDIDO WEB | nome=${name} | telefone=${phone} | endereco=${enderecoCompleto} | pagamento=${payment} | itens=${items} | total=R$${totalFinal.toFixed(2)} | estabelecimento=${cart[0]?.storeId||''}${obsInfo}`}})});}catch(e){}
   document.getElementById('checkoutView').classList.remove('show');
   document.getElementById('successView').classList.add('show');
   document.getElementById('successDetail').innerHTML=`<div class="sv-row"><span>Nome</span><span>${name}</span></div><div class="sv-row"><span>Endereço</span><span>${address}</span></div><div class="sv-row"><span>Pagamento</span><span>${payment}</span></div><div class="sv-row"><span>Total</span><span>R$${totalFinal.toFixed(2).replace('.',',')}</span></div><div class="sv-row"><span>Tempo</span><span>30–50 min</span></div>`;
