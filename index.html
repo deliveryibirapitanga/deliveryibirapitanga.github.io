@@ -625,6 +625,7 @@ function goCheckout(){
     if (saved.telefone) document.getElementById('fPhone').value = saved.telefone;
     if (saved.endereco) document.getElementById('fAddress').value = saved.endereco;
     if (saved.pagamento) document.getElementById('fPayment').value = saved.pagamento;
+    toggleTroco(); // atualiza o campo de troco conforme o pagamento pré-preenchido
   } catch(e) {}
   document.getElementById('checkoutSummary').innerHTML=`<div class="cart-summary" style="margin-bottom:12px"><div class="cart-row"><span>Itens</span><span>${cart.map(i=>`${i.qty}x ${i.name}`).join(', ')}</span></div><div class="cart-total-row"><span>Total</span><span>R$${totalFinal.toFixed(2).replace('.',',')}</span></div></div>`;
 }
