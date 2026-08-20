@@ -108,7 +108,10 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 
 .cart-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;backdrop-filter:blur(4px);}
 .cart-overlay.open{display:block;}
-.cart-drawer{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-radius:24px 24px 0 0;padding:0 0 32px;z-index:201;max-height:88vh;overflow-y:auto;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);}
+.cart-drawer{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-radius:24px 24px 0 0;padding:0;z-index:201;max-height:88vh;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);}
+#cartView{overflow-y:auto;flex:1;}
+.cart-footer-fixo{padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:var(--surface);border-top:1px solid var(--border);flex-shrink:0;}
+.cart-footer-fixo .proceed-btn{margin-top:0;}
 .cart-drawer.open{transform:translateY(0);}
 .cart-drag{padding:14px;display:flex;justify-content:center;cursor:pointer;}
 .cart-handle{width:40px;height:4px;background:var(--border);border-radius:2px;}
@@ -126,6 +129,15 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .cq-btn:hover{border-color:var(--accent);color:var(--accent);}
 .cq-num{font-size:13px;font-weight:600;min-width:14px;text-align:center;}
 .cart-summary{margin-top:12px;background:var(--surface2);border-radius:14px;padding:14px;}
+.sug-bloco{margin-top:14px;background:var(--surface2);border-radius:14px;padding:12px;}
+.sug-titulo{font-size:14px;font-weight:700;color:var(--text);margin-bottom:10px;}
+.sug-scroll{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;}
+.sug-scroll::-webkit-scrollbar{display:none;}
+.sug-bebida{flex-shrink:0;width:88px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:8px;cursor:pointer;transition:all .15s;text-align:center;}
+.sug-bebida:hover{border-color:var(--accent);transform:translateY(-2px);}
+.sug-img{width:100%;height:56px;display:flex;align-items:center;justify-content:center;font-size:32px;margin-bottom:6px;overflow:hidden;border-radius:8px;}
+.sug-nome{font-size:11px;color:var(--text2);line-height:1.2;margin-bottom:3px;height:26px;overflow:hidden;}
+.sug-preco{font-size:12px;font-weight:700;color:var(--accent);}
 .cart-row{display:flex;justify-content:space-between;font-size:13px;color:var(--text2);margin-bottom:6px;}
 .cart-row:last-child{margin-bottom:0;}
 .cart-total-row{display:flex;justify-content:space-between;font-family:'Syne',sans-serif;font-weight:700;font-size:18px;padding-top:10px;border-top:1px solid var(--border);margin-top:6px;}
@@ -310,6 +322,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
     <div class="cart-title">🛒 Seu pedido</div>
     <div id="cartItems"></div>
     <div id="cartSummary"></div>
+  </div>
+  <div class="cart-footer-fixo" id="cartFooterFixo">
     <button class="proceed-btn" id="proceedBtn" onclick="goCheckout()" disabled>Ir para o checkout</button>
   </div>
   <div class="checkout-view" id="checkoutView">
@@ -496,6 +510,49 @@ function changeQty(idx,d){
   updateCartUI();
 }
 
+// Retorna o HTML da sugestão de bebidas, se o carrinho tem comida mas nenhuma bebida
+function montarSugestaoBebida(){
+  if(cart.length===0) return '';
+  // Descobre o estabelecimento do carrinho
+  const storeId = cart[0].storeId;
+  const store = stores.find(s=>s.id===storeId);
+  if(!store) return '';
+  // Acha a seção de bebidas do estabelecimento
+  const secBebidas = store.sections.find(sec=>sec.title && sec.title.toLowerCase().includes('bebida'));
+  if(!secBebidas || !secBebidas.items.length) return '';
+  // Nomes das bebidas
+  const nomesBebidas = secBebidas.items.map(b=>b.name);
+  // Verifica se já tem alguma bebida no carrinho
+  const jaTemBebida = cart.some(item=>nomesBebidas.includes(item.name));
+  if(jaTemBebida) return '';
+  // Monta os cards de bebida sugeridos (máximo 4 pra não poluir)
+  const sugestoes = secBebidas.items.slice(0,4).map(b=>{
+    const nomeEsc = b.name.replace(/'/g,"\\'");
+    return `<div class="sug-bebida" onclick="addBebidaSugerida('${storeId}','${nomeEsc}')">
+      <div class="sug-img">${b.img?`<img src="${b.img}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:8px" onerror="this.replaceWith(document.createTextNode('${b.emoji}'))">`:b.emoji}</div>
+      <div class="sug-nome">${b.name.replace('Refrigerante lata — ','').replace('Refrigerante 1L — ','')}</div>
+      <div class="sug-preco">+ R$${b.price.toFixed(2).replace('.',',')}</div>
+    </div>`;
+  }).join('');
+  return `<div class="sug-bloco">
+    <div class="sug-titulo">🥤 Que tal uma bebida?</div>
+    <div class="sug-scroll">${sugestoes}</div>
+  </div>`;
+}
+
+// Adiciona uma bebida sugerida ao carrinho (com um toque)
+function addBebidaSugerida(storeId, nomeBebida){
+  const store = stores.find(s=>s.id===storeId);
+  if(!store) return;
+  let bebida=null;
+  store.sections.forEach(sec=>{
+    const found = sec.items.find(i=>i.name===nomeBebida);
+    if(found) bebida=found;
+  });
+  if(!bebida) return;
+  addItem(storeId, store.name, bebida.name, bebida.emoji, bebida.price, '', bebida.img);
+}
+
 function updateCartUI(){
   // Aviso de múltiplas lojas no carrinho
   const lojas = [...new Set(cart.map(i => i.storeId))];
@@ -533,6 +590,7 @@ function updateCartUI(){
     </div>`).join('');
     const totalFinal=total+5;
   document.getElementById('cartSummary').innerHTML=`
+    ${montarSugestaoBebida()}
     <div class="cart-summary">
       <div class="cart-row"><span>Subtotal</span><span>R$${total.toFixed(2).replace('.',',')}</span></div>
       
@@ -551,13 +609,14 @@ function toggleCart(){
   cartOpen=!cartOpen;
   document.getElementById('cartOverlay').classList.toggle('open',cartOpen);
   document.getElementById('cartDrawer').classList.toggle('open',cartOpen);
-  if(cartOpen){document.getElementById('cartView').style.display='block';document.getElementById('checkoutView').classList.remove('show');document.getElementById('successView').classList.remove('show');}
+  if(cartOpen){document.getElementById('cartView').style.display='block';document.getElementById('checkoutView').classList.remove('show');document.getElementById('successView').classList.remove('show');document.getElementById('cartFooterFixo').style.display='block';}
 }
 
 function goCheckout(){
   const total=cart.reduce((s,i)=>s+i.price*i.qty,0);
     const totalFinal=total+5;
   document.getElementById('cartView').style.display='none';
+  document.getElementById('cartFooterFixo').style.display='none';
   document.getElementById('checkoutView').classList.add('show');
   // Carregar dados salvos do cliente
   try {
@@ -570,7 +629,7 @@ function goCheckout(){
   document.getElementById('checkoutSummary').innerHTML=`<div class="cart-summary" style="margin-bottom:12px"><div class="cart-row"><span>Itens</span><span>${cart.map(i=>`${i.qty}x ${i.name}`).join(', ')}</span></div><div class="cart-total-row"><span>Total</span><span>R$${totalFinal.toFixed(2).replace('.',',')}</span></div></div>`;
 }
 
-function backToCartView(){document.getElementById('cartView').style.display='block';document.getElementById('checkoutView').classList.remove('show');}
+function backToCartView(){document.getElementById('cartView').style.display='block';document.getElementById('cartFooterFixo').style.display='block';document.getElementById('checkoutView').classList.remove('show');}
 
 async function sendOrder(){
   // TRAVA ANTI-CLIQUE-MÚLTIPLO: impede enviar o mesmo pedido várias vezes
@@ -629,6 +688,7 @@ async function sendOrder(){
   const obsInfo=obsGeral?` | observacoes=${obsGeral}`:'';
   try{await fetch(WEBHOOK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone:phone.replace(/\D/g,''),text:{message:`PEDIDO WEB | nome=${name} | telefone=${phone} | endereco=${enderecoCompleto} | pagamento=${payment}${trocoInfo} | itens=${items} | total=R$${totalFinal.toFixed(2)} | estabelecimento=${cart[0]?.storeId||''}${obsInfo}`}})});}catch(e){}
   document.getElementById('checkoutView').classList.remove('show');
+  document.getElementById('cartFooterFixo').style.display='none';
   document.getElementById('successView').classList.add('show');
   document.getElementById('successDetail').innerHTML=`<div class="sv-row"><span>Nome</span><span>${name}</span></div><div class="sv-row"><span>Endereço</span><span>${address}</span></div><div class="sv-row"><span>Pagamento</span><span>${payment}</span></div><div class="sv-row"><span>Total</span><span>R$${totalFinal.toFixed(2).replace('.',',')}</span></div><div class="sv-row"><span>Tempo</span><span>30–50 min</span></div>`;
   cart=[];updateCartUI();
