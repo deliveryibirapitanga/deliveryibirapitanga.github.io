@@ -320,10 +320,14 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
     <div class="form-group"><label class="form-label">Endereço de entrega</label><input class="form-input" id="fAddress" placeholder="Rua, número, bairro"/></div>
     <div class="form-group"><label class="form-label">Ponto de referência</label><input class="form-input" id="fRef" placeholder="Ex: perto da praça, casa amarela, ao lado do mercado" maxlength="150"/></div>
     <div class="form-group"><label class="form-label">Pagamento</label>
-      <select class="form-select" id="fPayment"><option value="">Selecione...</option><option value="PIX">PIX</option><option value="Dinheiro">Dinheiro</option><option value="Cartão (maquininha na entrega)">Cartão (maquininha na entrega)</option></select>
+      <select class="form-select" id="fPayment" onchange="toggleTroco()"><option value="">Selecione...</option><option value="PIX">PIX</option><option value="Dinheiro">Dinheiro</option><option value="Cartão (maquininha na entrega)">Cartão (maquininha na entrega)</option></select>
+    </div>
+    <div class="form-group" id="trocoGroup" style="display:none">
+      <label class="form-label">Precisa de troco? Troco para quanto?</label>
+      <input class="form-input" id="fTroco" placeholder="Ex: 50 (deixe vazio se não precisar de troco)" type="tel"/>
     </div>
     <div class="form-group"><label class="form-label">Observações do pedido (opcional)</label>
-      <input class="form-input" id="fObs" placeholder="Ex: troco para R$50, casa amarela..." maxlength="200"/>
+      <input class="form-input" id="fObs" placeholder="Ex: sem pimenta, casa amarela..." maxlength="200"/>
     </div>
 
     <div id="checkoutSummary"></div>
@@ -352,6 +356,11 @@ async function carregarStatus(){
     ESTAB_FECHADOS=Array.isArray(d.fechados)?d.fechados:[];
   }catch(e){ESTAB_FECHADOS=[];} // em erro, assume tudo aberto (não bloqueia venda)
   if(typeof renderStores==='function')renderStores(stores);
+}
+function toggleTroco(){
+  const pay=document.getElementById('fPayment').value;
+  const grp=document.getElementById('trocoGroup');
+  if(grp)grp.style.display=(pay==='Dinheiro')?'block':'none';
 }
 function isOpen(){return !ESTAB_FECHADOS.includes('ACARAJE_ABARA');} // aberto, a menos que marcado fechado no painel
 function isOpenHouse(){return true;} // MODO DEMO - sempre aberto
@@ -598,6 +607,12 @@ async function sendOrder(){
   const ref=document.getElementById('fRef').value.trim();
   const payment=document.getElementById('fPayment').value;
   const obsGeral=document.getElementById('fObs').value.trim();
+  const troco=document.getElementById('fTroco')?document.getElementById('fTroco').value.trim():'';
+  // Se pagou em dinheiro e informou troco, monta o aviso de troco
+  let trocoInfo='';
+  if(payment==='Dinheiro'){
+    trocoInfo = troco ? ` [Troco para R$${troco}]` : ' [Não precisa de troco]';
+  }
   if(!name||!phone||!address||!payment){showToast('Preencha todos os campos!');reativarBotao();return;}
   // Junta o ponto de referência ao endereço, se informado
   const enderecoCompleto = ref ? `${address} (Ref: ${ref})` : address;
@@ -612,7 +627,7 @@ async function sendOrder(){
   const total=cart.reduce((s,i)=>s+i.price*i.qty,0);
     const totalFinal=total+5;
   const obsInfo=obsGeral?` | observacoes=${obsGeral}`:'';
-  try{await fetch(WEBHOOK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone:phone.replace(/\D/g,''),text:{message:`PEDIDO WEB | nome=${name} | telefone=${phone} | endereco=${enderecoCompleto} | pagamento=${payment} | itens=${items} | total=R$${totalFinal.toFixed(2)} | estabelecimento=${cart[0]?.storeId||''}${obsInfo}`}})});}catch(e){}
+  try{await fetch(WEBHOOK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone:phone.replace(/\D/g,''),text:{message:`PEDIDO WEB | nome=${name} | telefone=${phone} | endereco=${enderecoCompleto} | pagamento=${payment}${trocoInfo} | itens=${items} | total=R$${totalFinal.toFixed(2)} | estabelecimento=${cart[0]?.storeId||''}${obsInfo}`}})});}catch(e){}
   document.getElementById('checkoutView').classList.remove('show');
   document.getElementById('successView').classList.add('show');
   document.getElementById('successDetail').innerHTML=`<div class="sv-row"><span>Nome</span><span>${name}</span></div><div class="sv-row"><span>Endereço</span><span>${address}</span></div><div class="sv-row"><span>Pagamento</span><span>${payment}</span></div><div class="sv-row"><span>Total</span><span>R$${totalFinal.toFixed(2).replace('.',',')}</span></div><div class="sv-row"><span>Tempo</span><span>30–50 min</span></div>`;
