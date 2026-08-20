@@ -723,7 +723,7 @@ function pedirDeNovo(){
 
 function compartilhar(){
   const url = 'https://deliveryibirapitanga.github.io';
-  const txt = `🍔 *Delivery Ibirapitanga* 🍕\n\nO melhor delivery da cidade! 9 estabelecimentos em 1 só lugar 🛵\n\nFaça seu pedido: ${url}`;
+  const txt = `*Delivery Ibirapitanga* 🛵\n\nA comida da nossa cidade na palma da sua mão! Peça pelo WhatsApp e receba em casa 😋\n\nFaça seu pedido: ${url}`;
   if (navigator.share) {
     navigator.share({title:'Delivery Ibirapitanga', text:txt, url:url}).catch(()=>{});
   } else {
