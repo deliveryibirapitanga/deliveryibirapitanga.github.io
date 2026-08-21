@@ -742,8 +742,8 @@ async function sendOrder(){
   document.getElementById('cartFooterFixo').style.display='none';
   document.getElementById('successView').classList.add('show');
   // Monta o botão de confirmação de UM TOQUE: WhatsApp abre com a msg já pronta
-  // A mensagem começa com "CONFIRMAR PEDIDO" — o backend reconhece isso com 100% de certeza
-  const msgConfirma = `CONFIRMAR PEDIDO ✅\n\nMeu pedido:\n${items}\nEndereço: ${enderecoCompleto}\nPagamento: ${payment}${trocoInfo}\nTotal: R$${totalFinal.toFixed(2).replace('.',',')}`;
+  // A mensagem é curta "Confirmar pedido" — o backend reconhece e a Ana responde com os detalhes
+  const msgConfirma = `Confirmar pedido ✅`;
   const NUM_DELIVERY='5573999528308';
   const waLink=`https://wa.me/${NUM_DELIVERY}?text=${encodeURIComponent(msgConfirma)}`;
   const btnWa=document.getElementById('confirmWaBtn');
@@ -773,7 +773,7 @@ function atualizarHoraStatus() {
     if(h >= 18 && h < 23) {
       elStatus.innerHTML = '<span style="color:var(--green);font-weight:600">✅ Delivery aberto agora!</span>';
     } else if(h >= 10 && h < 15) {
-      elStatus.innerHTML = '<span style="color:var(--green);font-weight:600">✅ Alto Carmelo aberto!</span>';
+      elStatus.innerHTML = '<span style="color:var(--green);font-weight:600">✅ Delivery aberto agora!</span>';
     } else if(h < 18) {
       const falta = 18 - h;
       elStatus.innerHTML = `<span style="color:var(--text2)">Abre em ${falta}h no período da noite</span>`;
